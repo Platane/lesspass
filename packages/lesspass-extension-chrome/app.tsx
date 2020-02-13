@@ -1,11 +1,11 @@
 import React from "react";
 import { render } from "react-dom";
-import { Popup } from "../components/Popup";
+import { App } from "./components/_App";
 
 export const init = () => {
   const rootElement = document.createElement("div");
   document.body.appendChild(rootElement);
-  render(<Popup />, rootElement);
+  render(<App />, rootElement);
 };
 
 init();

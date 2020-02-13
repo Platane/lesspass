@@ -10,7 +10,8 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": ["https://*/*", "http://*/*", "activeTab"],
+  "options_page": "app.html#options",
+  "permissions": ["https://*/*", "http://*/*", "activeTab", "storage"],
   "browser_action": {
     "browser_style": false,
     "default_icon": "icons/logo-32.png",

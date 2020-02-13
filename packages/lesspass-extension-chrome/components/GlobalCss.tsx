@@ -7,19 +7,19 @@ export const GlobalStyle = () => (
       *,
       *:before,
       *:after {
-        box-sizing: inherit;
-      }
-
-      html {
-        background-color: #eee;
+        box-sizing: border-box;
       }
 
       body {
+        background-color: #f0f0f0;
         margin: 0;
-        font-family: helvetica, Arial, sans-serif;
       }
+
+      body,
+      button,
       input {
         font-family: helvetica, Arial, sans-serif;
+        font-size: 16px;
       }
     `}
   />

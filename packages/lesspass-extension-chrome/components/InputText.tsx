@@ -11,7 +11,7 @@ export const InputText = ({ value, onChange, ...props }) => (
 );
 
 const Input = styled.input`
-  padding: 10px;
+  padding: 12px;
   border-radius: 0;
   border: none;
   background-color: #fff;

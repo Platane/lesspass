@@ -10,9 +10,10 @@ const DIST_DIR = path.resolve(__dirname, "..", "dist");
 const createConfig = mode => ({
   mode,
   entry: {
-    popup: path.resolve(__dirname, "../popup/index.tsx"),
-    background: path.resolve(__dirname, "../background/index.ts"),
-    injected: path.resolve(__dirname, "../injected/index.ts")
+    app: path.resolve(__dirname, "../app.tsx"),
+    popup: path.resolve(__dirname, "../popup.tsx"),
+    injected: path.resolve(__dirname, "../injected/index.ts"),
+    background: path.resolve(__dirname, "../background/index.ts")
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"]
@@ -38,6 +39,12 @@ const createConfig = mode => ({
     new HtmlWebpackPlugin({
       chunks: ["popup"],
       filename: "popup.html",
+      title: manifest.name
+    }),
+
+    new HtmlWebpackPlugin({
+      chunks: ["app"],
+      filename: "app.html",
       title: manifest.name
     }),
 

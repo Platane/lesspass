@@ -29,8 +29,9 @@ const init = () => {
           await documentReady;
           const m = getLoginFields();
           if (m) {
-            m.login.value = message.login;
-            m.password.value = message.password;
+            if (message.login !== undefined) m.login.value = message.login;
+            if (message.password !== undefined)
+              m.password.value = message.password;
           }
           return;
         }
@@ -39,8 +40,9 @@ const init = () => {
           await documentReady;
           const m = getLoginFields();
           if (m) {
-            m.login.value = message.login;
-            m.password.value = message.password;
+            if (message.login !== undefined) m.login.value = message.login;
+            if (message.password !== undefined)
+              m.password.value = message.password;
 
             const f = getFormAncestor(m.login);
 
