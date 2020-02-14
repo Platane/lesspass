@@ -1,25 +1,22 @@
 import { useEffect, useState } from "react";
 import { generatePassword } from "lesspass";
 
-export const useGeneratedPassword = account => {
+export const useGeneratedPassword = (host, login, masterPassword, params) => {
   const [generatedPassword, setGeneratedPassword] = useState<
     string | undefined
   >();
 
   useEffect(() => {
-    if (account.login && account.host && account.masterPassword)
+    if (login && host && masterPassword)
       generatePassword(
         //
-        account.host,
-        account.login,
-        account.masterPassword,
-        {
-          ...account.profile,
-          counter: account.i
-        }
+        host,
+        login,
+        masterPassword,
+        params
       ).then(setGeneratedPassword);
     else setGeneratedPassword(undefined);
-  }, [account]);
+  }, [host, login, masterPassword, params]);
 
   return generatedPassword;
 };

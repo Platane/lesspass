@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import browser from "../../browser";
 
 export type Options = {
@@ -7,7 +7,11 @@ export type Options = {
   getLoginFields: boolean;
   fillLoginFields: "no" | "submit" | "auto";
   saveMasterPassword: boolean;
-  saveProfilesInExtension: "no" | "local" | "sync";
+  profileStorage:
+    | null
+    | { type: "extension-sync" }
+    | { type: "extension-local" }
+    | { type: "lesspass"; accessToken: string };
 };
 
 export const defaultOptions: Options = {
@@ -16,44 +20,44 @@ export const defaultOptions: Options = {
   getLoginFields: false,
   fillLoginFields: "no",
   saveMasterPassword: false,
-  saveProfilesInExtension: "no"
+  profileStorage: { type: "extension-sync" }
 };
 
 export const useOptions = () => {
+  const fromStorage = useRef<any>();
   const [options, setOptions] = useState<Options>(defaultOptions);
 
-  // initial read
+  // read
   useEffect(() => {
     if (!browser.storage) return;
 
-    browser.storage.sync
-      .get("options")
-      .then(({ options }) => setOptions({ ...defaultOptions, ...options }));
-  }, []);
+    // initial read
+    browser.storage.sync.get("options").then(({ options }) => {
+      setOptions((fromStorage.current = { ...defaultOptions, ...options }));
+    });
 
-  // listen to changes
-  useEffect(() => {
-    if (!browser.storage) return;
-
-    const onChange = e => {
-      setOptions({ ...defaultOptions, ...e.options.newValue });
+    // listen
+    const onChange = changes => {
+      if (changes.options)
+        setOptions((fromStorage.current = changes.options.newValue));
     };
-
     browser.storage.onChanged.addListener(onChange);
-
-    return () => {
-      browser.storage.onChanged.removeListener(onChange);
-    };
+    return () => browser.storage.onChanged.removeListener(onChange);
   }, []);
 
-  // set
+  // write
   useEffect(() => {
     if (!browser.storage) return;
 
-    if (options === defaultOptions) return;
+    if (!fromStorage.current) return;
+
+    if (fromStorage.current === options) return;
 
     browser.storage.sync.set({ options });
   }, [options]);
 
-  return { options, setOptions: (o: Options) => setOptions(o) };
+  return {
+    options,
+    setOptions: (o: Partial<Options>) => setOptions({ ...options, ...o })
+  };
 };

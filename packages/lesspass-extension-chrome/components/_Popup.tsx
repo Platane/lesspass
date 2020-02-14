@@ -1,11 +1,11 @@
 import React from "react";
 import { PopupMain } from "./Screens/PopupMain";
-import { PopupLayout } from "./PopupLayout";
+import { LayoutPopup } from "./LayoutPopup";
 
 export const Popup = () => {
   return (
-    <PopupLayout>
+    <LayoutPopup>
       <PopupMain />
-    </PopupLayout>
+    </LayoutPopup>
   );
 };

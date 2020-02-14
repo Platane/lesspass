@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { GlobalStyle } from "./GlobalCss";
 import { Header } from "./Header";
 
-export const PopupLayout = ({ children, ...props }) => {
+export const LayoutPopup = ({ children, ...props }) => {
   return (
     <>
       <GlobalStyle />

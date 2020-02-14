@@ -11,10 +11,21 @@ import { useOptions } from "../hooks/useOptions";
 import { useDebouncedEffect } from "../hooks/useDebouncedEffect";
 import { InputText } from "../InputText";
 import { useTranslate } from "../hooks/useTranslate";
+import { useProfiles } from "../hooks/useProfiles";
+import { defaultParams } from "../../types";
+import { useMasterPassword } from "../hooks/useMasterPassword";
+import { useHost } from "../hooks/useHost";
+import { useCredentials } from "../hooks/useCredentials";
 
 export const PopupMain = () => {
   const t = useTranslate();
   const { options } = useOptions();
+  // const { host, setHost } = useHost(options);
+  const { masterPassword, setMasterPassword } = useMasterPassword(options);
+  const { profiles, addProfile } = useProfiles(options);
+
+  const { host, login, setHost, setLogin } = useCredentials(options);
+
   const { account, setAccount } = useAccount(options);
   const generatedPassword = useGeneratedPassword(account);
   const { canSubmit, haveLoginField } = usePageInfo();
@@ -42,7 +53,14 @@ export const PopupMain = () => {
           submitPassword(account.login, generatedPassword);
         }}
       >
-        <AccountForm value={account} onChange={setAccount} />
+        <AccountForm
+          host={host}
+          login={login}
+          masterPassword={masterPassword}
+          onChangeHost={setHost}
+          onChangeLogin={setLogin}
+          onChangeMasterPassword={setMasterPassword}
+        />
 
         <Separator />
 
@@ -55,6 +73,19 @@ export const PopupMain = () => {
           </>
         )}
       </form>
+
+      <Button
+        disabled={!account.host && !account.login}
+        onClick={() =>
+          addProfile({
+            host: account.host,
+            login: account.login,
+            params: defaultParams
+          })
+        }
+      >
+        Save profile
+      </Button>
 
       <Separator />
 

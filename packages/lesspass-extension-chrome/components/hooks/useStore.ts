@@ -59,7 +59,7 @@ export const useAccount = (options: Options) => {
   return { account, setAccount: (a: Account) => setAccount(a) };
 };
 
-const defaultProfile = {
+const defaultParams: Params = {
   lowercase: true,
   uppercase: true,
   symbols: true,
@@ -76,6 +76,13 @@ const defaultAccount = {
 };
 
 export type Profile = {
+  i: number;
+  login: string;
+  host: string;
+  params: Params;
+};
+
+export type Params = {
   lowercase: boolean;
   uppercase: boolean;
   symbols: boolean;
@@ -91,6 +98,57 @@ export type Account = {
   profile: Profile;
 };
 
-type State = {
-  account: Account;
+export type State = {
+  options:
+    | { status: "ready"; value: Options }
+    | { status: "reading" }
+    | { status: "void" };
+
+  login: {
+    fromPrevious:
+      | { status: "ready"; value: string }
+      | { status: "reading" }
+      | { status: "void" };
+    fromPage:
+      | { status: "ready"; value: string }
+      | { status: "reading" }
+      | { status: "void" };
+    form: string;
+  };
+
+  host: {
+    fromPage:
+      | { status: "ready"; value: string }
+      | { status: "reading" }
+      | { status: "void" };
+    form: string;
+  };
+
+  masterPassword: {
+    fromCache:
+      | { status: "ready"; value: string }
+      | { status: "reading" }
+      | { status: "void" };
+    form: string;
+  };
+
+  profiles:
+    | { status: "ready"; value: Profile[] }
+    | { status: "reading" }
+    | { status: "void" };
+};
+
+type Action = any;
+
+const reduce = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "profile:storage:read":
+      return {
+        ...state,
+        profiles: { status: "ready", value: action.profiles }
+      };
+
+    default:
+      return state;
+  }
 };
