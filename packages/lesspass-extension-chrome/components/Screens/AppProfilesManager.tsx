@@ -2,6 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { useOptions } from "../hooks/useOptions";
 import { useProfiles } from "../hooks/useProfiles";
+import { Favicon } from "../Favicon";
 
 export const AppProfilesManager = () => {
   const { options } = useOptions();
@@ -13,10 +14,10 @@ export const AppProfilesManager = () => {
 
       {profiles.map(p => (
         <Row key={p.host + "+" + p.login} onClick={() => removeProfile(p)}>
-          <Icon src={`https://${p.host}/favicon.ico`} />
+          <Favicon host={p.host} />
 
-          <div style={{ minWidth: "200px" }}>{p.host}</div>
-          <div style={{ minWidth: "200px" }}>{p.login}</div>
+          <div style={{ minWidth: "200px", margin: "6px" }}>{p.host}</div>
+          <div style={{ minWidth: "200px", margin: "6px" }}>{p.login}</div>
           <pre
             style={{
               fontSize: "12px",

@@ -77,7 +77,11 @@ export const ParamsForm = ({ value, onChange, ...props }: Props) => {
   );
 };
 
-const Label = styled.label``;
+const Label = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 const Row = styled.div`
   display: flex;
   flex-direction: row;

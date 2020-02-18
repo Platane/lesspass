@@ -13,4 +13,5 @@ export const CheckBox = ({ value, onChange, ...props }) => (
 const Input = styled.input`
   width: 18px;
   height: 18px;
+  margin: 0;
 `;
