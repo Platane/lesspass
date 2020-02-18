@@ -2,8 +2,24 @@ import { parse as parseUrl } from "url";
 import browser from "../browser";
 import { Options, defaultOptions } from "../components/hooks/useOptions";
 
+const createMasterPasswordTemporaryStorage = () => {
+  let value = undefined;
+  let timeout;
+
+  return {
+    get: () => value,
+    set: v => {
+      value = v;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        value = undefined;
+      }, 3 * 60 * 60 * 1000);
+    }
+  };
+};
+
 export const init = () => {
-  let masterPassword: string;
+  const masterPasswordStorage = createMasterPasswordTemporaryStorage();
 
   browser.runtime.onMessage.addListener(async (message, sender) => {
     try {
@@ -16,6 +32,8 @@ export const init = () => {
         ...defaultOptions,
         ...(await browser.storage.sync.get("options")).options
       } as Options;
+
+      console.log(`[${message && message.type}]`);
 
       switch (message && message.type) {
         case "background:optionsPage:open": {
@@ -45,11 +63,11 @@ export const init = () => {
 
         case "background:masterPassword:get": {
           if (!options.saveMasterPassword) return;
-          return { masterPassword };
+          return { masterPassword: masterPasswordStorage.get() };
         }
         case "background:masterPassword:set": {
           if (!options.saveMasterPassword) return;
-          masterPassword = message.masterPassword;
+          masterPasswordStorage.set(message.masterPassword);
           return;
         }
         case "content:loginFields:get":

@@ -58,6 +58,7 @@ export const useOptions = () => {
 
   return {
     options,
-    setOptions: (o: Partial<Options>) => setOptions({ ...options, ...o })
+    setOptions: (o: Partial<Options>) => setOptions({ ...options, ...o }),
+    inited: defaultOptions !== options
   };
 };

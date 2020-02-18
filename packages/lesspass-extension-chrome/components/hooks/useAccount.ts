@@ -1,96 +1,97 @@
 import { useEffect, useState } from "react";
 import browser from "../../browser";
 import { Options } from "./useOptions";
-import { useDebouncedEffect } from "./useDebouncedEffect";
+import { defaultParams } from "../../types";
 
-export const useAccount = (options: Options) => {
-  const [account, setAccount] = useState<Account>(defaultAccount);
+const getInitialAccount = async (options: Options) => {
+  const [currentHost, currentLogin, previousState] = await Promise.all([
+    options.getTabInfo
+      ? browser.runtime
+          .sendMessage({ type: "background:tabInfo" })
+          .catch(err => console.error(err))
+          .then(res => (res && res.host) || undefined)
+      : undefined,
 
-  // get host
-  useEffect(() => {
-    if (!options.getTabInfo) return;
-    if (account.host !== defaultAccount.host) return;
+    options.getLoginFields
+      ? browser.runtime
+          .sendMessage({ type: "content:loginFields:get" })
+          .catch(err => console.error(err))
+          .then(res => (res && res.login) || undefined)
+      : undefined,
 
-    browser.runtime.sendMessage({ type: "background:tabInfo" }).then(res => {
-      if (res) setAccount(a => ({ ...a, host: res.host }));
-    });
-  }, [options.getTabInfo]);
+    browser.storage &&
+      browser.storage.local
+        .get("previousState")
+        .catch(err => console.error(err))
+        .then(res => res && res.previousState)
+  ]);
 
-  // get login
-  useEffect(() => {
-    if (!options.getLoginFields) return;
-    if (account.login !== defaultAccount.login) return;
+  const host =
+    currentHost || (previousState && previousState.host) || undefined;
 
-    browser.runtime
-      .sendMessage({ type: "content:loginFields:get" })
-      .then(res => {
-        if (res) setAccount(a => ({ ...a, login: res.login }));
-      });
-  }, [options.getLoginFields]);
+  const login =
+    currentLogin ||
+    (previousState && previousState.host === host && previousState.login) ||
+    undefined;
 
-  // get master password
-  useEffect(() => {
-    if (!options.saveMasterPassword) return;
-    if (account.masterPassword !== defaultAccount.masterPassword) return;
+  const params =
+    (previousState && previousState.host === host && previousState.params) ||
+    undefined;
 
-    browser.runtime
-      .sendMessage({ type: "background:masterPassword:get" })
-      .then(res => {
-        if (res)
-          setAccount(a => ({ ...a, masterPassword: res.masterPassword }));
-      });
-  }, [options.saveMasterPassword]);
-
-  // auto save
-  useDebouncedEffect(
-    () => {
-      if (!options.saveMasterPassword) return;
-      if (account.masterPassword === defaultAccount.masterPassword) return;
-
-      browser.runtime.sendMessage({
-        type: "background:masterPassword:set",
-        masterPassword: account.masterPassword
-      });
-    },
-    [account.masterPassword, options.saveMasterPassword],
-    500
-  );
-
-  return { account, setAccount: (a: Account) => setAccount(a) };
+  return { host, login, params };
 };
 
-const defaultProfile = {
-  lowercase: true,
-  uppercase: true,
-  symbols: true,
-  numbers: true,
-  length: 16
+// read the host on the page
+export const useAccount = options => {
+  const [state, setState] = useState({
+    account: defaultAccount,
+    inited: false,
+    touched: false
+  });
+
+  useEffect(() => {
+    if (!options) return;
+
+    getInitialAccount(options).then(initialAccount => {
+      setState(state => {
+        if (state.touched) return state;
+
+        return {
+          ...state,
+          inited: true,
+          account: {
+            host: initialAccount.host || state.account.host,
+            login: initialAccount.login || state.account.login,
+            params: initialAccount.params || state.account.params
+          }
+        };
+      });
+    });
+  }, [options]);
+
+  useEffect(() => {
+    if (!state.inited) return;
+
+    if (!browser.storage) return;
+
+    browser.storage.local
+      .set({ previousState: state.account })
+      .catch(err => console.error(err));
+  }, [state]);
+
+  return {
+    ...state,
+    setAccount: (a: Partial<Account>) =>
+      setState(state => ({
+        ...state,
+        touched: true,
+        account: { ...state.account, ...a }
+      }))
+  };
 };
 
 const defaultAccount = {
   host: "",
   login: "",
-  masterPassword: "",
-  i: 0,
-  profile: defaultProfile
-};
-
-export type Profile = {
-  lowercase: boolean;
-  uppercase: boolean;
-  symbols: boolean;
-  numbers: boolean;
-  length: number;
-};
-
-export type Account = {
-  host: string;
-  login: string;
-  masterPassword: string;
-  i: number;
-  profile: Profile;
-};
-
-type State = {
-  account: Account;
+  params: defaultParams
 };

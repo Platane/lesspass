@@ -1,5 +1,5 @@
 import browser from "../browser";
-import { getLoginFields, getFormAncestor } from "./form";
+import { getLoginFields, getFormAncestor } from "../services/form";
 
 const documentReady =
   document.readyState === "complete"

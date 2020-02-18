@@ -11,7 +11,7 @@ export type Params = {
   numbers: boolean;
   length: number;
 
-  i: number;
+  counter: number;
 };
 
 export const paramsEquals = (a: Params, b: Params) =>
@@ -20,7 +20,7 @@ export const paramsEquals = (a: Params, b: Params) =>
   a.length === b.length &&
   a.symbols === b.symbols &&
   a.numbers === b.numbers &&
-  a.i === b.i;
+  a.counter === b.counter;
 
 export const profileEquals = (a: Profile, b: Profile) =>
   a.login === b.login && a.host === b.host && paramsEquals(a.params, b.params);
@@ -28,9 +28,7 @@ export const profileEquals = (a: Profile, b: Profile) =>
 export type Account = {
   host: string;
   login: string;
-  masterPassword: string;
-  i: number;
-  profile: Profile;
+  params: Params;
 };
 
 export const defaultParams: Params = {
@@ -40,5 +38,5 @@ export const defaultParams: Params = {
   numbers: true,
   length: 16,
 
-  i: 0
+  counter: 0
 };

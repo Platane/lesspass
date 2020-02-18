@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { AccountForm } from "../AccountForm";
 import { useAccount } from "../hooks/useAccount";
@@ -12,22 +12,35 @@ import { useDebouncedEffect } from "../hooks/useDebouncedEffect";
 import { InputText } from "../InputText";
 import { useTranslate } from "../hooks/useTranslate";
 import { useProfiles } from "../hooks/useProfiles";
-import { defaultParams } from "../../types";
 import { useMasterPassword } from "../hooks/useMasterPassword";
-import { useHost } from "../hooks/useHost";
-import { useCredentials } from "../hooks/useCredentials";
+import { ParamsForm } from "../ParamsForm";
 
 export const PopupMain = () => {
   const t = useTranslate();
-  const { options } = useOptions();
-  // const { host, setHost } = useHost(options);
+  const { options, inited: optionsInited } = useOptions();
   const { masterPassword, setMasterPassword } = useMasterPassword(options);
   const { profiles, addProfile } = useProfiles(options);
+  const { account, setAccount, touched } = useAccount(
+    optionsInited ? options : null
+  );
 
-  const { host, login, setHost, setLogin } = useCredentials(options);
+  useEffect(() => {
+    if (touched) return;
 
-  const { account, setAccount } = useAccount(options);
-  const generatedPassword = useGeneratedPassword(account);
+    const p = profiles.find(
+      x =>
+        x.host === account.host && (!account.login || account.login === x.login)
+    );
+
+    if (p) setAccount(p);
+  }, [profiles, account, touched]);
+
+  const generatedPassword = useGeneratedPassword(
+    account.host,
+    account.login,
+    masterPassword,
+    account.params
+  );
   const { canSubmit, haveLoginField } = usePageInfo();
 
   // auto-fill
@@ -37,7 +50,7 @@ export const PopupMain = () => {
 
       fillPassword(
         account.login,
-        account.masterPassword ? generatedPassword : undefined
+        masterPassword ? generatedPassword : undefined
       );
     },
     [account.login, generatedPassword, haveLoginField, options.fillLoginFields],
@@ -49,16 +62,15 @@ export const PopupMain = () => {
       <form
         onSubmit={e => {
           e.preventDefault();
-          console.log("---");
           submitPassword(account.login, generatedPassword);
         }}
       >
         <AccountForm
-          host={host}
-          login={login}
+          host={account.host}
+          login={account.login}
           masterPassword={masterPassword}
-          onChangeHost={setHost}
-          onChangeLogin={setLogin}
+          onChangeHost={host => setAccount({ host })}
+          onChangeLogin={login => setAccount({ login })}
           onChangeMasterPassword={setMasterPassword}
         />
 
@@ -80,12 +92,19 @@ export const PopupMain = () => {
           addProfile({
             host: account.host,
             login: account.login,
-            params: defaultParams
+            params: account.params
           })
         }
       >
         Save profile
       </Button>
+
+      <Separator />
+
+      <ParamsForm
+        value={account.params}
+        onChange={params => setAccount({ params })}
+      />
 
       <Separator />
 

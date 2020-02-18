@@ -17,6 +17,8 @@ export const useMasterPassword = (
     browser.runtime
       .sendMessage({ type: "background:masterPassword:get" })
       .then(res => {
+        console.log("get", res);
+
         if (res && res.masterPassword)
           setMasterPassword((fromStorage.current = res.masterPassword));
       });
@@ -26,8 +28,10 @@ export const useMasterPassword = (
   useDebouncedEffect(
     () => {
       if (!options.saveMasterPassword) return;
-      if (!fromStorage.current) return;
+      if (!masterPassword) return;
       if (fromStorage.current === masterPassword) return;
+
+      console.log("save", masterPassword);
 
       browser.runtime.sendMessage({
         type: "background:masterPassword:set",

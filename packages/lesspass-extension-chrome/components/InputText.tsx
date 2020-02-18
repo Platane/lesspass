@@ -5,7 +5,7 @@ export const InputText = ({ value, onChange, ...props }) => (
   <Input
     type="text"
     {...props}
-    value={value || ""}
+    value={value === undefined || value === null ? "" : value}
     onChange={e => onChange(e.target.value)}
   />
 );

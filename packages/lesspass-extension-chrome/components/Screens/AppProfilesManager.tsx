@@ -13,12 +13,19 @@ export const AppProfilesManager = () => {
 
       {profiles.map(p => (
         <Row key={p.host + "+" + p.login} onClick={() => removeProfile(p)}>
-          <div style={{ minWidth: "100px" }}>{p.host}</div>
-          <div style={{ minWidth: "100px" }}>{p.login}</div>
+          <Icon src={`https://${p.host}/favicon.ico`} />
+
+          <div style={{ minWidth: "200px" }}>{p.host}</div>
+          <div style={{ minWidth: "200px" }}>{p.login}</div>
           <pre
-            style={{ fontSize: "12px", background: "#fff", padding: "10px" }}
+            style={{
+              fontSize: "12px",
+              background: "#fff",
+              padding: "10px",
+              margin: 0
+            }}
           >
-            {JSON.stringify(p.params, null, 2)}
+            {JSON.stringify(p.params, null, 1).slice(2, -2)}
           </pre>
         </Row>
       ))}
@@ -26,7 +33,13 @@ export const AppProfilesManager = () => {
   );
 };
 
+const Icon = styled.img`
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+`;
 const Row = styled.div`
   display: flex;
   flex-direction: row;
+  margin: 10px;
 `;

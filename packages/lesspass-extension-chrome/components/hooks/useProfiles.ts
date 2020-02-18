@@ -16,7 +16,7 @@ export const useProfiles = (options: Pick<Options, "profileStorage">) => {
 
     // initial read
     s.get("profiles").then(({ profiles }) =>
-      setProfiles((fromStorage.current = profiles))
+      setProfiles((fromStorage.current = profiles || []))
     );
 
     // listen
